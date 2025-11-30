@@ -18,6 +18,20 @@
                 }
             }
         }
+
+        // Fix for mobile menu not closing when clicking links
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu) {
+                const mobileLinks = mobileMenu.querySelectorAll('a');
+
+                mobileLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileMenu.classList.add('hidden');
+                    });
+                });
+            }
+        });
     </script>
     <style>
         /* Custom Animations */
