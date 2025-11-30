@@ -26,19 +26,19 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --brand-orange: #F57C00; --brand-pink: #D81B60; --brand-light-bg: #FFF8F2; } 
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; overflow-x: hidden; } 
-        .sidebar-link { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-left: 4px solid transparent; } 
-        .sidebar-link:hover { background-color: var(--brand-light-bg); color: var(--brand-orange); border-left-color: var(--brand-orange); transform: translateX(4px); } 
-        .sidebar-active { background-color: var(--brand-light-bg); color: var(--brand-orange); font-weight: 700; border-left-color: var(--brand-orange); } 
-        #sidebar, #main-content { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); } 
-        .sidebar-text, .sidebar-logo-text { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; } 
-        body.sidebar-collapsed #sidebar { width: 5.5rem; } 
-        body.sidebar-collapsed #main-content { margin-left: 5.5rem; } 
-        body.sidebar-collapsed .sidebar-text, body.sidebar-collapsed .sidebar-logo-text { opacity: 0; width: 0; margin-left: 0; pointer-events: none; } 
-        body.sidebar-collapsed .sidebar-link, body.sidebar-collapsed #user-info-sidebar { justify-content: center; padding-left: 0.5rem; padding-right: 0.5rem; } 
-        .profile-picture { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 3px solid #FDBA74; } 
-        .profile-picture:hover { transform: scale(1.05); border-color: var(--brand-orange); } 
+        :root { --brand-orange: #F57C00; --brand-pink: #D81B60; --brand-light-bg: #FFF8F2; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
+        .sidebar-link { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-left: 4px solid transparent; }
+        .sidebar-link:hover { background-color: var(--brand-light-bg); color: var(--brand-orange); border-left-color: var(--brand-orange); transform: translateX(4px); }
+        .sidebar-active { background-color: var(--brand-light-bg); color: var(--brand-orange); font-weight: 700; border-left-color: var(--brand-orange); }
+        #sidebar, #main-content { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar-text, .sidebar-logo-text { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; }
+        body.sidebar-collapsed #sidebar { width: 5.5rem; }
+        body.sidebar-collapsed #main-content { margin-left: 5.5rem; }
+        body.sidebar-collapsed .sidebar-text, body.sidebar-collapsed .sidebar-logo-text { opacity: 0; width: 0; margin-left: 0; pointer-events: none; }
+        body.sidebar-collapsed .sidebar-link, body.sidebar-collapsed #user-info-sidebar { justify-content: center; padding-left: 0.5rem; padding-right: 0.5rem; }
+        .profile-picture { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 3px solid #FDBA74; }
+        .profile-picture:hover { transform: scale(1.05); border-color: var(--brand-orange); }
         .dropdown-menu { transform-origin: top right; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 
         /* --- CUSTOM CARD DESIGN --- */
@@ -52,6 +52,10 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             position: relative;
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         .trx-card:hover {
             transform: translateY(-10px);
@@ -78,7 +82,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             letter-spacing: 0.5px;
             transition: 0.3s;
         }
-        
+
         /* Type Specific */
         .type-non-member .icon-circle { background: #E3F2FD; color: #2196F3; }
         .type-non-member:hover .icon-circle { background: #2196F3; color: white; }
@@ -89,6 +93,11 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         .type-member:hover .icon-circle { background: #E91E63; color: white; }
         .type-member .btn-action { background: #E91E63; color: white; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3); }
         .type-member .btn-action:hover { background: #C2185B; transform: translateY(-2px); }
+
+        .type-lost-ticket .icon-circle { background: #FFF3E0; color: #FF9800; }
+        .type-lost-ticket:hover .icon-circle { background: #FF9800; color: white; }
+        .type-lost-ticket .btn-action { background: #FF9800; color: white; box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3); }
+        .type-lost-ticket .btn-action:hover { background: #F57C00; transform: translateY(-2px); }
 
     </style>
 </head>
@@ -125,7 +134,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     </aside>
 
     <div id="main-content" class="flex-1 flex flex-col overflow-hidden transition-all duration-400">
-        
+
         <header class="flex-shrink-0 flex justify-between items-center p-4 bg-white border-b-2 border-slate-200 shadow-sm">
              <div class="flex items-center">
                  <button id="sidebar-toggle" class="text-gray-600 hover:text-[var(--brand-orange)] focus:outline-none mr-4 transition-all duration-300 p-2 rounded-lg hover:bg-orange-50"><i class="fas fa-bars fa-lg"></i></button>
@@ -143,7 +152,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                     </div>
                     <i class="fas fa-chevron-down text-gray-500 text-xs transition-transform duration-300 group-hover:text-[var(--brand-orange)]"></i>
                 </button>
-                
+
                 <div id="user-menu" class="absolute right-0 mt-3 w-64 bg-white rounded-xl shadow-2xl py-2 z-20 hidden border border-slate-200 dropdown-menu scale-95 opacity-0">
                     <div class="px-4 py-3 border-b border-slate-100">
                         <div class="flex items-center space-x-3">
@@ -171,40 +180,59 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 </div>
             </div>
         </header>
-        
+
         <main class="flex-1 p-8 overflow-y-auto bg-slate-50">
-            <div class="container mx-auto max-w-5xl h-full flex flex-col justify-center">
-                
+            <div class="container mx-auto max-w-7xl h-full flex flex-col justify-center">
+
                 <div class="text-center mb-12">
                     <h1 class="text-3xl font-extrabold text-slate-800 mb-3 tracking-tight">Pilih Jenis Transaksi</h1>
                     <p class="text-slate-500 max-w-lg mx-auto">Silakan pilih kategori pelanggan untuk melanjutkan proses pembayaran parkir kendaraan keluar.</p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
-                    
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
+
                     <div class="trx-card type-non-member">
-                        <div class="icon-circle">
-                            <i class="fas fa-ticket-alt"></i>
+                        <div>
+                            <div class="icon-circle">
+                                <i class="fas fa-ticket-alt"></i>
+                            </div>
+                            <h3 class="card-title">Pengunjung Umum</h3>
+                            <p class="card-desc">
+                                Untuk kendaraan tanpa keanggotaan. Proses pembayaran menggunakan scan tiket parkir.
+                            </p>
                         </div>
-                        <h3 class="card-title">Pengunjung Umum</h3>
-                        <p class="card-desc">
-                            Untuk kendaraan tanpa keanggotaan. Proses pembayaran menggunakan scan tiket parkir (barcode/QR).
-                        </p>
                         <a href="proses_non_member.php" class="btn-action">
                             <i class="fas fa-arrow-right mr-2"></i> Proses Transaksi
                         </a>
                     </div>
 
                     <div class="trx-card type-member">
-                        <div class="icon-circle">
-                            <i class="fas fa-id-card"></i>
+                        <div>
+                            <div class="icon-circle">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <h3 class="card-title">Member Parkir</h3>
+                            <p class="card-desc">
+                                Khusus untuk pelanggan terdaftar. Proses verifikasi menggunakan kartu member.
+                            </p>
                         </div>
-                        <h3 class="card-title">Member Parkir</h3>
-                        <p class="card-desc">
-                            Khusus untuk pelanggan terdaftar. Proses verifikasi menggunakan kartu member atau scan QR Member.
-                        </p>
                         <a href="proses_member_keluar.php" class="btn-action">
                             <i class="fas fa-arrow-right mr-2"></i> Proses Transaksi
+                        </a>
+                    </div>
+
+                    <div class="trx-card type-lost-ticket">
+                        <div>
+                            <div class="icon-circle">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <h3 class="card-title">Tiket Hilang</h3>
+                            <p class="card-desc">
+                                Denda untuk pengunjung yang kehilangan tiket parkir. Tarif flat sesuai kebijakan.
+                            </p>
+                        </div>
+                        <a href="tiket_hilang.php" class="btn-action">
+                            <i class="fas fa-arrow-right mr-2"></i> Proses Denda
                         </a>
                     </div>
 
