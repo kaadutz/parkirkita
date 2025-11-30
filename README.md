@@ -67,18 +67,6 @@
       - **Landing Page**: `http://localhost/parkirkita/landing.php`
       - **Login**: `http://localhost/parkirkita/login.php`
 
-## 🔑 Default Accounts
-
-*(Based on seed data)*
-
-- **Superadmin**:
-  - Email: `rakaanugrah2012@gmail.com`
-  - Password: `111111`
-
-- **Petugas**:
-  - Email: `raka.anugrah1561@smk.belajar.id`
-  - Password: `111111`
-
 ## 📜 License
 
 This project is open-source and available for educational and commercial use.
