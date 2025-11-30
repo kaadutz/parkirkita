@@ -7,46 +7,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 'super_admin') {
 }
 include '../koneksi.php';
 
-// --- DATA UNTUK STATS CARDS ---
-$total_petugas = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(id) as total FROM users WHERE role = 'petugas'"))['total'] ?? 0;
-$total_members = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(id) as total FROM members"))['total'] ?? 0;
-
-// Pendapatan
-$query_pendapatan_non_member = "SELECT SUM(total_fee) as total FROM parking_transactions WHERE MONTH(check_out_time) = MONTH(CURDATE()) AND YEAR(check_out_time) = YEAR(CURDATE())";
-$pendapatan_non_member = mysqli_fetch_assoc(mysqli_query($conn, $query_pendapatan_non_member))['total'] ?? 0;
-$query_pendapatan_member = "SELECT SUM(amount) as total FROM member_billings WHERE status = 'lunas' AND MONTH(payment_date) = MONTH(CURDATE()) AND YEAR(payment_date) = YEAR(CURDATE())";
-$pendapatan_member = mysqli_fetch_assoc(mysqli_query($conn, $query_pendapatan_member))['total'] ?? 0;
-$pendapatan_bulan_ini = $pendapatan_non_member + $pendapatan_member;
-
-$kendaraan_hari_ini = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(id) as total FROM parking_transactions WHERE DATE(check_in_time) = CURDATE()"))['total'] ?? 0;
-
-// --- DATA UNTUK TABEL TRANSAKSI TERAKHIR ---
-$query_recent_transactions = "SELECT * FROM parking_transactions ORDER BY check_in_time DESC LIMIT 5";
-$result_recent_transactions = mysqli_query($conn, $query_recent_transactions);
-
-// --- DATA UNTUK CHART (7 HARI TERAKHIR) ---
-$chart_labels = [];
-$chart_data = [];
-for ($i = 6; $i >= 0; $i--) {
-    $date = date('Y-m-d', strtotime("-$i days"));
-    $day_name = date('D', strtotime($date)); // Mon, Tue
-    $chart_labels[] = $day_name;
-    
-    // Gabungkan pendapatan parkir harian
-    $query_daily_income = "SELECT SUM(total_fee) as daily_total FROM parking_transactions WHERE DATE(check_out_time) = '$date'";
-    $daily_income_result = mysqli_fetch_assoc(mysqli_query($conn, $query_daily_income));
-    $chart_data[] = $daily_income_result['daily_total'] ?? 0;
-}
-
-// --- AMBIL DATA PROFILE USER ---
+// --- DATA PROFILE USER (STATIC) ---
 $user_id = $_SESSION['user_id'];
 $query_user = "SELECT * FROM users WHERE id = '$user_id'";
 $result_user = mysqli_query($conn, $query_user);
 $user_data = mysqli_fetch_assoc($result_user);
-
 $profile_picture_filename = $user_data['profile_photo'] ?? null;
 $profile_picture_url = 'https://ui-avatars.com/api/?name=' . urlencode($user_data['name']) . '&background=F57C00&color=fff&size=128';
-
 if (!empty($profile_picture_filename) && file_exists('../uploads/profile/' . $profile_picture_filename)) {
     $profile_picture_url = '../uploads/profile/' . $profile_picture_filename . '?v=' . time();
 }
@@ -66,7 +33,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <style>
         :root { --brand-orange: #F57C00; --brand-pink: #D81B60; --brand-dark: #1C2E4A; --brand-light-bg: #FFF8F2; }
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
-        
+
         /* SIDEBAR & NAVBAR (TIDAK DIUBAH) */
         .sidebar-link { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-left: 4px solid transparent; }
         .sidebar-link:hover { background-color: var(--brand-light-bg); color: var(--brand-orange); border-left-color: var(--brand-orange); transform: translateX(4px); }
@@ -75,15 +42,12 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         .sidebar-text, .sidebar-logo-text { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; }
         body.sidebar-collapsed #sidebar { width: 5.5rem; }
         body.sidebar-collapsed #main-content { margin-left: 5.5rem; }
-        body.sidebar-collapsed .sidebar-text, body.sidebar-collapsed .sidebar-logo-text { opacity: 0; width: 0; margin-left: 0; pointer-events: none; }
-        body.sidebar-collapsed .sidebar-link, body.sidebar-collapsed #user-info-sidebar { justify-content: center; padding-left: 0.5rem; padding-right: 0.5rem; }
+        body.sidebar-collapsed .sidebar-text, .sidebar-collapsed .sidebar-logo-text { opacity: 0; width: 0; margin-left: 0; pointer-events: none; }
         .profile-picture { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 3px solid #FDBA74; }
         .profile-picture:hover { transform: scale(1.05); border-color: var(--brand-orange); }
         .dropdown-menu { transform-origin: top right; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .dropdown-item { transition: all 0.2s ease; }
-        .dropdown-item:hover { transform: translateX(4px); }
 
-        /* --- NEW DASHBOARD STYLES --- */
+        /* --- DASHBOARD STYLES --- */
         .welcome-banner {
             background: linear-gradient(135deg, #1C2E4A 0%, #2C3E50 100%);
             color: white; border-radius: 1.5rem; padding: 2rem; position: relative; overflow: hidden;
@@ -94,28 +58,34 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
             border-radius: 50%; pointer-events: none;
         }
-        
+
         .stats-card {
             background: white; border-radius: 1rem; padding: 1.5rem;
             border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
             transition: all 0.3s ease;
         }
         .stats-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.08); border-color: #e2e8f0; }
-        
+
         .icon-wrapper {
             width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
         }
-        
+
         .chart-container, .recent-container {
             background: white; border-radius: 1rem; border: 1px solid #f1f5f9;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); padding: 1.5rem;
         }
+
+        .filter-input {
+            border: 1px solid #e2e8f0; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; color: #475569;
+            background-color: #f8fafc; transition: all 0.2s;
+        }
+        .filter-input:focus { outline: none; border-color: var(--brand-orange); background-color: white; box-shadow: 0 0 0 3px rgba(245, 124, 0, 0.1); }
     </style>
 </head>
 <body class="bg-slate-50">
 
 <div class="flex h-screen bg-slate-50 overflow-hidden">
-    
+
     <aside id="sidebar" class="w-64 bg-white shadow-2xl hidden sm:block flex-shrink-0 z-10">
         <div class="flex flex-col h-full">
             <div class="h-20 flex items-center justify-center flex-shrink-0 border-b border-slate-100">
@@ -155,7 +125,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     </aside>
 
     <div id="main-content" class="flex-1 flex flex-col overflow-hidden transition-all duration-400">
-        
+
         <header class="flex-shrink-0 flex justify-between items-center p-4 bg-white border-b border-slate-200 shadow-sm z-20">
              <div class="flex items-center">
                  <button id="sidebar-toggle" class="text-gray-600 hover:text-[var(--brand-orange)] focus:outline-none mr-4 transition-all duration-300 p-2 rounded-lg hover:bg-orange-50"><i class="fas fa-bars fa-lg"></i></button>
@@ -190,22 +160,35 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 </div>
             </div>
         </header>
-        
+
         <main class="flex-1 overflow-x-hidden overflow-y-auto p-6 lg:p-10">
             <div class="container mx-auto max-w-7xl">
-                
+
                 <div class="welcome-banner mb-10">
-                    <h2 class="text-3xl font-bold mb-2">Halo, <?= htmlspecialchars(explode(' ', $_SESSION['user_name'])[0]); ?>! </h2>
-                    <p class="text-blue-100 opacity-90 text-lg">Berikut adalah ringkasan aktivitas sistem parkir hari ini.</p>
-                    <div class="mt-6 flex gap-3">
-                        <span class="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
-                            <i class="far fa-calendar-alt"></i> <?= date('d F Y') ?>
-                        </span>
+                    <div class="flex flex-col md:flex-row justify-between items-end gap-4">
+                        <div>
+                            <h2 class="text-3xl font-bold mb-2">Halo, <?= htmlspecialchars(explode(' ', $_SESSION['user_name'])[0]); ?>! </h2>
+                            <p class="text-blue-100 opacity-90 text-lg">Berikut ringkasan aktivitas sistem parkir.</p>
+                        </div>
+
+                        <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 flex flex-wrap gap-3 items-center">
+                            <div class="flex items-center gap-2 text-white/80">
+                                <i class="far fa-calendar-alt"></i>
+                                <span class="text-sm font-semibold">Filter:</span>
+                            </div>
+                            <input type="date" id="start_date" class="bg-white/90 border-none text-slate-800 text-xs rounded-lg px-3 py-2 font-bold focus:ring-2 focus:ring-orange-400" value="<?= date('Y-m-d', strtotime('-6 days')) ?>">
+                            <span class="text-white/60 text-xs">s/d</span>
+                            <input type="date" id="end_date" class="bg-white/90 border-none text-slate-800 text-xs rounded-lg px-3 py-2 font-bold focus:ring-2 focus:ring-orange-400" value="<?= date('Y-m-d') ?>">
+                            <button id="apply-filter" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-lg">
+                                <i class="fas fa-search mr-1"></i> Terapkan
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                    
+
+                    <!-- Static Cards -->
                     <div class="stats-card flex flex-col justify-between h-full">
                         <div class="flex justify-between items-start mb-4">
                             <div class="icon-wrapper bg-blue-50 text-blue-600">
@@ -214,6 +197,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Staff</span>
                         </div>
                         <div>
+                            <?php $total_petugas = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(id) as total FROM users WHERE role = 'petugas'"))['total'] ?? 0; ?>
                             <h3 class="text-3xl font-bold text-slate-800"><?= number_format($total_petugas) ?></h3>
                             <p class="text-sm text-slate-500 mt-1">Petugas Aktif</p>
                         </div>
@@ -227,21 +211,23 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pelanggan</span>
                         </div>
                         <div>
+                            <?php $total_members = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(id) as total FROM members"))['total'] ?? 0; ?>
                             <h3 class="text-3xl font-bold text-slate-800"><?= number_format($total_members) ?></h3>
                             <p class="text-sm text-slate-500 mt-1">Member Terdaftar</p>
                         </div>
                     </div>
 
+                    <!-- Dynamic Cards (Updated via AJAX) -->
                     <div class="stats-card flex flex-col justify-between h-full relative overflow-hidden border-l-4 border-green-500">
                         <div class="flex justify-between items-start mb-4">
                             <div class="icon-wrapper bg-green-50 text-green-600">
                                 <i class="fas fa-wallet"></i>
                             </div>
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Bulan Ini</span>
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pendapatan</span>
                         </div>
                         <div>
-                            <h3 class="text-2xl font-bold text-slate-800 tracking-tight">Rp <?= number_format($pendapatan_bulan_ini) ?></h3>
-                            <p class="text-sm text-slate-500 mt-1">Total Pendapatan</p>
+                            <h3 class="text-2xl font-bold text-slate-800 tracking-tight" id="val-income">Rp 0</h3>
+                            <p class="text-sm text-slate-500 mt-1">Periode Terpilih</p>
                         </div>
                     </div>
 
@@ -250,23 +236,23 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                             <div class="icon-wrapper bg-orange-50 text-orange-600">
                                 <i class="fas fa-car"></i>
                             </div>
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Hari Ini</span>
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Transaksi</span>
                         </div>
                         <div>
-                            <h3 class="text-3xl font-bold text-slate-800"><?= number_format($kendaraan_hari_ini) ?></h3>
-                            <p class="text-sm text-slate-500 mt-1">Kendaraan Masuk</p>
+                            <h3 class="text-3xl font-bold text-slate-800" id="val-trx">0</h3>
+                            <p class="text-sm text-slate-500 mt-1">Kendaraan Keluar</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    
-                    <div class="lg:col-span-2 chart-container">
+
+                    <div class="lg:col-span-2 chart-container relative">
                         <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-lg font-bold text-slate-800">Tren Pendapatan Parkir</h3>
-                            <select class="text-xs border-gray-200 rounded-lg text-slate-500 focus:ring-0 bg-slate-50">
-                                <option>7 Hari Terakhir</option>
-                            </select>
+                            <h3 class="text-lg font-bold text-slate-800">Analisis Pendapatan</h3>
+                            <div id="chart-loading" class="hidden absolute inset-0 bg-white/80 z-10 flex items-center justify-center rounded-xl">
+                                <i class="fas fa-spinner fa-spin text-orange-500 text-3xl"></i>
+                            </div>
                         </div>
                         <div class="h-80 w-full">
                             <canvas id="incomeChart"></canvas>
@@ -278,10 +264,15 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                             <h3 class="text-lg font-bold text-slate-800">Aktivitas Terbaru</h3>
                             <a href="laporan.php" class="text-xs font-bold text-orange-500 hover:text-orange-600">Lihat Semua</a>
                         </div>
-                        
+
                         <div class="flex-1 overflow-y-auto pr-2 space-y-4 max-h-[320px]">
-                            <?php if(mysqli_num_rows($result_recent_transactions) > 0): ?>
-                                <?php while($row = mysqli_fetch_assoc($result_recent_transactions)): ?>
+                            <?php
+                            // Initial Load (Last 5 transactions)
+                            $query_recent = "SELECT * FROM parking_transactions ORDER BY check_in_time DESC LIMIT 5";
+                            $result_recent = mysqli_query($conn, $query_recent);
+                            if(mysqli_num_rows($result_recent) > 0):
+                                while($row = mysqli_fetch_assoc($result_recent)):
+                            ?>
                                 <div class="flex items-center p-3 bg-slate-50 rounded-xl hover:bg-white hover:shadow-sm transition border border-transparent hover:border-slate-100">
                                     <div class="w-10 h-10 rounded-full flex items-center justify-center bg-white text-slate-500 shadow-sm mr-3 shrink-0">
                                         <i class="fas fa-<?= ($row['vehicle_category'] ?? 'car') == 'motor' ? 'motorcycle' : 'car-side' ?>"></i>
@@ -291,19 +282,17 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                                         <p class="text-xs text-slate-500 truncate">Masuk: <?= date('H:i', strtotime($row['check_in_time'])) ?></p>
                                     </div>
                                     <div class="text-right shrink-0">
-                                        <?php if($row['check_out_time']): ?>
+                                        <?php if(strpos($row['parking_token'], 'LOST') === 0): ?>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-800">TIKET HILANG</span>
+                                        <?php elseif($row['check_out_time']): ?>
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Selesai</span>
                                         <?php else: ?>
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">Aktif</span>
                                         <?php endif; ?>
                                     </div>
                                 </div>
-                                <?php endwhile; ?>
-                            <?php else: ?>
-                                <div class="text-center py-8 text-slate-400">
-                                    <i class="fas fa-inbox text-3xl mb-2 opacity-50"></i>
-                                    <p class="text-sm">Belum ada aktivitas.</p>
-                                </div>
+                            <?php endwhile; else: ?>
+                                <div class="text-center py-8 text-slate-400">Belum ada aktivitas.</div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -320,16 +309,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Sidebar & Navbar Logic (Tidak Diubah) ---
     const sidebarToggle = document.getElementById('sidebar-toggle'); if (sidebarToggle) { sidebarToggle.addEventListener('click', () => { document.body.classList.toggle('sidebar-collapsed'); localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); }); } if (localStorage.getItem('sidebarCollapsed') === 'true') { document.body.classList.add('sidebar-collapsed'); } const userMenuButton = document.getElementById('user-menu-button'); const userMenu = document.getElementById('user-menu'); const userMenuIcon = userMenuButton?.querySelector('i.fa-chevron-down'); if (userMenuButton && userMenu) { userMenuButton.addEventListener('click', (e) => { e.stopPropagation(); const isHidden = userMenu.classList.contains('hidden'); if (isHidden) { userMenu.classList.remove('hidden'); setTimeout(() => { userMenu.classList.remove('scale-95', 'opacity-0'); userMenu.classList.add('scale-100', 'opacity-100'); if (userMenuIcon) { userMenuIcon.style.transform = 'rotate(180deg)'; } }, 10); } else { userMenu.classList.add('scale-95', 'opacity-0'); setTimeout(() => { userMenu.classList.add('hidden'); if (userMenuIcon) { userMenuIcon.style.transform = 'rotate(0deg)'; } }, 200); } }); window.addEventListener('click', (e) => { if (userMenuButton && userMenu && !userMenuButton.contains(e.target) && !userMenu.contains(e.target)) { userMenu.classList.add('scale-95', 'opacity-0'); setTimeout(() => { userMenu.classList.add('hidden'); if (userMenuIcon) { userMenuIcon.style.transform = 'rotate(0deg)'; } }, 200); } }); }
 
-    // --- Chart Configuration (Enhanced) ---
-    const ctx = document.getElementById('incomeChart');
-    if (ctx) {
-        new Chart(ctx.getContext('2d'), {
+    // --- CHART LOGIC & FILTERING ---
+    let incomeChart = null;
+
+    function initChart(labels, data) {
+        const ctx = document.getElementById('incomeChart');
+        if (!ctx) return;
+
+        if (incomeChart) {
+            incomeChart.destroy();
+        }
+
+        incomeChart = new Chart(ctx.getContext('2d'), {
             type: 'line',
             data: {
-                labels: <?= json_encode($chart_labels) ?>,
+                labels: labels,
                 datasets: [{
-                    label: 'Pendapatan (Rp)',
-                    data: <?= json_encode($chart_data) ?>,
+                    label: 'Pendapatan',
+                    data: data,
                     backgroundColor: 'rgba(245, 124, 0, 0.1)',
                     borderColor: '#F57C00',
                     borderWidth: 3,
@@ -338,7 +335,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     pointBorderWidth: 3,
                     pointRadius: 5,
                     pointHoverRadius: 7,
-                    tension: 0.4, // Curve
+                    tension: 0.4,
                     fill: true
                 }]
             },
@@ -379,6 +376,35 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    function fetchData() {
+        const start = document.getElementById('start_date').value;
+        const end = document.getElementById('end_date').value;
+        const loader = document.getElementById('chart-loading');
+
+        loader.classList.remove('hidden');
+
+        fetch(`api_laporan_super.php?start_date=${start}&end_date=${end}&laporan=parkir`)
+            .then(response => response.json())
+            .then(data => {
+                // Update Cards
+                document.getElementById('val-income').textContent = 'Rp ' + (data.stats.money || '0');
+                document.getElementById('val-trx').textContent = (data.stats.trx || '0');
+
+                // Update Chart
+                if (data.chart_trend) {
+                    initChart(data.chart_trend.labels, data.chart_trend.data);
+                }
+            })
+            .catch(err => console.error('Error fetching data:', err))
+            .finally(() => {
+                loader.classList.add('hidden');
+            });
+    }
+
+    // Initialize
+    document.getElementById('apply-filter').addEventListener('click', fetchData);
+    fetchData(); // Load initial data
 });
 </script>
 </body>
