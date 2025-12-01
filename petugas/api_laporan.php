@@ -39,7 +39,7 @@ try {
     if ($laporan_aktif == 'parkir') {
         // --- LOGIKA PARKIR ---
         $where = "WHERE pt.processed_by_petugas_id = '$petugas_id' AND DATE(pt.check_out_time) BETWEEN '$start_date' AND '$end_date'";
-        
+
         if ($filter_tipe === 'member') $where .= " AND pt.member_id IS NOT NULL";
         elseif ($filter_tipe === 'umum') $where .= " AND pt.member_id IS NULL";
 
@@ -63,10 +63,10 @@ try {
 
         if (mysqli_num_rows($result) > 0) {
             while ($row = mysqli_fetch_assoc($result)) {
-                $jenis = $row['member_id'] 
-                    ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Member</span>' 
+                $jenis = $row['member_id']
+                    ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Member</span>'
                     : '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">Umum</span>';
-                
+
                 $response['html'] .= '
                 <tr class="hover:bg-slate-50 transition border-b border-slate-100">
                     <td class="px-6 py-4">'.$jenis.'</td>
@@ -86,7 +86,7 @@ try {
     } else {
         // --- LOGIKA LANGGANAN ---
         $where = "WHERE mb.processed_by_petugas_id = '$petugas_id' AND mb.status = 'lunas' AND DATE(mb.payment_date) BETWEEN '$start_date' AND '$end_date'";
-        
+
         $q_sum = mysqli_query($conn, "SELECT COUNT(id) as trx, SUM(amount) as uang FROM member_billings mb $where");
         $sum = mysqli_fetch_assoc($q_sum);
         $response['stats']['trx'] = number_format($sum['trx']);

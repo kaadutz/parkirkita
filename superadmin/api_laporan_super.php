@@ -16,7 +16,7 @@ $filter_petugas = $_GET['filter_petugas'] ?? 'semua';
 $laporan_aktif = $_GET['laporan'] ?? 'parkir';
 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$limit = 10; 
+$limit = 10;
 $offset = ($page - 1) * $limit;
 
 $response = [
@@ -38,7 +38,7 @@ if ($laporan_aktif == 'parkir') {
     $sum = mysqli_fetch_assoc($q_sum);
     $trx = $sum['trx'] ?? 0;
     $uang = $sum['uang'] ?? 0;
-    
+
     $response['stats']['trx'] = number_format($trx);
     $response['stats']['money'] = number_format($uang, 0, ',', '.');
     $response['stats']['avg'] = ($trx > 0) ? number_format($uang / $trx, 0, ',', '.') : 0;
@@ -62,19 +62,19 @@ if ($laporan_aktif == 'parkir') {
     $response['chart_pie'] = [$q_pie_mem['total'], $q_pie_non['total']];
 
     // 5. TOP OFFICERS
-    $q_top = mysqli_query($conn, "SELECT u.name, COUNT(pt.id) as total_trx 
-                                  FROM parking_transactions pt 
-                                  JOIN users u ON pt.processed_by_petugas_id = u.id 
-                                  $where 
-                                  GROUP BY u.name 
+    $q_top = mysqli_query($conn, "SELECT u.name, COUNT(pt.id) as total_trx
+                                  FROM parking_transactions pt
+                                  JOIN users u ON pt.processed_by_petugas_id = u.id
+                                  $where
+                                  GROUP BY u.name
                                   ORDER BY total_trx DESC LIMIT 3");
     while($top = mysqli_fetch_assoc($q_top)) {
         $response['top_officers'][] = $top;
     }
 
     // 6. DATA TABLE
-    $query = "SELECT pt.*, u.name as petugas_name, m.name as member_name 
-              FROM parking_transactions pt 
+    $query = "SELECT pt.*, u.name as petugas_name, m.name as member_name
+              FROM parking_transactions pt
               LEFT JOIN users u ON pt.processed_by_petugas_id = u.id
               LEFT JOIN members m ON pt.member_id = m.id
               $where ORDER BY pt.check_out_time DESC LIMIT $limit OFFSET $offset";
@@ -98,7 +98,7 @@ if ($laporan_aktif == 'parkir') {
     } else {
         $response['html'] = '<tr><td colspan="5" class="text-center py-8 text-slate-400">Data tidak ditemukan.</td></tr>';
     }
-} 
+}
 // --- LOGIKA LANGGANAN (Sederhana) ---
 else {
     $where = "WHERE mb.status = 'lunas' AND DATE(mb.payment_date) BETWEEN '$start_date' AND '$end_date'";
@@ -109,9 +109,9 @@ else {
     $response['stats']['trx'] = number_format($sum['trx']);
     $response['stats']['money'] = number_format($sum['uang'] ?? 0, 0, ',', '.');
 
-    $query = "SELECT mb.*, m.name as m_name, u.name as p_name FROM member_billings mb 
-              JOIN members m ON mb.member_id = m.id 
-              LEFT JOIN users u ON mb.processed_by_petugas_id = u.id 
+    $query = "SELECT mb.*, m.name as m_name, u.name as p_name FROM member_billings mb
+              JOIN members m ON mb.member_id = m.id
+              LEFT JOIN users u ON mb.processed_by_petugas_id = u.id
               $where ORDER BY mb.payment_date DESC LIMIT $limit OFFSET $offset";
     $result = mysqli_query($conn, $query);
 
