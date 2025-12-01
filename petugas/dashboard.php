@@ -40,29 +40,12 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Petugas - Parkir Kita</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: { orange: '#F57C00', pink: '#D81B60' }
-                    }
-                }
-            }
-        }
-    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --brand-orange: #F57C00; --brand-pink: #D81B60; --brand-light-bg: #FFF8F2; } 
-        body { font-family: 'Inter', sans-serif; overflow-x: hidden; } 
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; overflow-x: hidden; } 
         
-        /* DARK MODE OVERRIDES */
-        .dark .sidebar-link:hover { background-color: #1e293b; border-left-color: var(--brand-orange); }
-        .dark .sidebar-active { background-color: #1e293b; color: var(--brand-orange); }
-        .dark body { background-color: #0f172a; }
-
         /* SIDEBAR STYLES (TIDAK DIUBAH) */
         .sidebar-link { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-left: 4px solid transparent; } 
         .sidebar-link:hover { background-color: var(--brand-light-bg); color: var(--brand-orange); border-left-color: var(--brand-orange); transform: translateX(4px); } 
@@ -95,7 +78,6 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             border: 1px solid #f0f0f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             transition: transform 0.2s;
         }
-        .dark .stat-card { background: #1e293b; border-color: #334155; }
         .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
         
         .icon-box {
@@ -105,30 +87,26 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         .modern-table th {
             background-color: #f8fafc; color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; padding: 1rem 1.5rem; text-align: left;
         }
-        .dark .modern-table th { background-color: #1e293b; color: #94a3b8; }
-        
         .modern-table td {
             padding: 1rem 1.5rem; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.875rem;
         }
-        .dark .modern-table td { border-bottom-color: #334155; color: #cbd5e1; }
         .modern-table tr:last-child td { border-bottom: none; }
         .modern-table tr:hover td { background-color: #f8fafc; }
-        .dark .modern-table tr:hover td { background-color: #334155; }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+<body class="bg-slate-50">
 
-<div class="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden transition-colors duration-300">
+<div class="flex h-screen bg-slate-50 overflow-hidden">
     
-    <aside id="sidebar" class="w-64 bg-white dark:bg-slate-800 shadow-2xl hidden sm:block flex-shrink-0 z-10 border-r border-slate-100 dark:border-slate-700 transition-colors duration-300">
+    <aside id="sidebar" class="w-64 bg-white shadow-2xl hidden sm:block flex-shrink-0 z-10">
         <div class="flex flex-col h-full">
-            <div class="h-20 flex items-center justify-center flex-shrink-0 border-b border-slate-100 dark:border-slate-700">
+            <div class="h-20 flex items-center justify-center flex-shrink-0 border-b border-slate-100">
                  <a href="dashboard.php" class="text-2xl font-bold tracking-wider flex items-center transition-all duration-300 hover:scale-105">
                      <i class="fas fa-parking text-[var(--brand-orange)] text-3xl"></i>
-                     <span class="sidebar-logo-text ml-3 text-gray-700 dark:text-white transition-all duration-300">Parkir<span class="text-[var(--brand-pink)]">Kita</span></span>
+                     <span class="sidebar-logo-text ml-3 text-gray-700 transition-all duration-300">Parkir<span class="text-[var(--brand-pink)]">Kita</span></span>
                  </a>
             </div>
-            <nav class="mt-4 text-gray-600 dark:text-slate-400 font-medium flex-grow">
+            <nav class="mt-4 text-gray-600 font-medium flex-grow">
                 <a href="dashboard.php" class="sidebar-link flex items-center py-3 px-6 <?= ($currentPage == 'dashboard.php') ? 'sidebar-active' : '' ?>">
                     <i class="fas fa-tachometer-alt fa-fw text-xl w-8 text-center"></i>
                     <span class="sidebar-text ml-4 transition-all duration-300">Dashboard</span>
@@ -146,15 +124,15 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                     <span class="sidebar-text ml-4 transition-all duration-300">Laporan Saya</span>
                 </a>
             </nav>
-            <div class="mt-auto p-4 border-t border-slate-100 dark:border-slate-700">
+            <div class="mt-auto p-4 border-t border-slate-100">
                 <div id="user-info-sidebar" class="flex items-center transition-all duration-300">
                     <img src="<?= $profile_picture_url ?>" alt="Profile" class="w-10 h-10 rounded-full object-cover profile-picture">
                     <div class="sidebar-text ml-3 transition-all duration-300">
-                        <p class="text-sm font-bold text-gray-800 dark:text-white"><?= htmlspecialchars($_SESSION['user_name']); ?></p>
-                        <p class="text-xs text-gray-500 dark:text-slate-400 capitalize"><?= str_replace('_', ' ', $_SESSION['user_role']); ?></p>
+                        <p class="text-sm font-bold text-gray-800"><?= htmlspecialchars($_SESSION['user_name']); ?></p>
+                        <p class="text-xs text-gray-500 capitalize"><?= str_replace('_', ' ', $_SESSION['user_role']); ?></p>
                     </div>
                 </div>
-                <a href="../logout.php" class="sidebar-link flex items-center mt-3 py-2 px-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 rounded-lg">
+                <a href="../logout.php" class="sidebar-link flex items-center mt-3 py-2 px-2 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-lg">
                     <i class="fas fa-sign-out-alt fa-fw text-xl w-8 text-center"></i><span class="sidebar-text ml-4 transition-all duration-300">Logout</span>
                 </a>
             </div>
@@ -163,42 +141,36 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
     <div id="main-content" class="flex-1 flex flex-col overflow-hidden transition-all duration-400">
         
-        <header class="flex-shrink-0 flex justify-between items-center p-4 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm z-20 transition-colors duration-300">
+        <header class="flex-shrink-0 flex justify-between items-center p-4 bg-white border-b border-slate-200 shadow-sm z-20">
              <div class="flex items-center">
-                 <button id="sidebar-toggle" class="text-gray-600 dark:text-slate-300 hover:text-[var(--brand-orange)] focus:outline-none mr-4 transition-all duration-300 p-2 rounded-lg hover:bg-orange-50 dark:hover:bg-slate-700"><i class="fas fa-bars fa-lg"></i></button>
-                 <h1 class="text-xl font-semibold text-slate-700 dark:text-white">Dashboard Petugas</h1>
+                 <button id="sidebar-toggle" class="text-gray-600 hover:text-[var(--brand-orange)] focus:outline-none mr-4 transition-all duration-300 p-2 rounded-lg hover:bg-orange-50"><i class="fas fa-bars fa-lg"></i></button>
+                 <h1 class="text-xl font-semibold text-slate-700">Dashboard Petugas</h1>
              </div>
-            <div class="flex items-center gap-4">
-                <button id="theme-toggle" class="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-                    <i class="fas fa-moon dark:hidden"></i>
-                    <i class="fas fa-sun hidden dark:block"></i>
+            <div class="relative">
+                <button id="user-menu-button" class="flex items-center space-x-3 bg-slate-50 hover:bg-slate-100 px-4 py-2 rounded-xl transition-all duration-200 group">
+                    <div class="relative">
+                        <img src="<?= $profile_picture_url ?>" alt="Profile" class="w-10 h-10 rounded-full object-cover shadow-sm profile-picture">
+                        <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                    </div>
+                    <div class="text-left hidden sm:block">
+                        <p class="font-semibold text-gray-700 text-sm"><?= htmlspecialchars($_SESSION['user_name']); ?></p>
+                        <p class="text-xs text-gray-500 capitalize"><?= str_replace('_', ' ', $_SESSION['user_role']); ?></p>
+                    </div>
+                    <i class="fas fa-chevron-down text-gray-500 text-xs transition-transform duration-300 group-hover:text-[var(--brand-orange)]"></i>
                 </button>
-                <div class="relative">
-                    <button id="user-menu-button" class="flex items-center space-x-3 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 px-4 py-2 rounded-xl transition-all duration-200 group">
-                        <div class="relative">
-                            <img src="<?= $profile_picture_url ?>" alt="Profile" class="w-10 h-10 rounded-full object-cover shadow-sm profile-picture">
-                            <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
-                        </div>
-                        <div class="text-left hidden sm:block">
-                            <p class="font-semibold text-gray-700 dark:text-slate-200 text-sm"><?= htmlspecialchars($_SESSION['user_name']); ?></p>
-                            <p class="text-xs text-gray-500 dark:text-slate-400 capitalize"><?= str_replace('_', ' ', $_SESSION['user_role']); ?></p>
-                        </div>
-                        <i class="fas fa-chevron-down text-gray-500 dark:text-slate-400 text-xs transition-transform duration-300 group-hover:text-[var(--brand-orange)]"></i>
-                    </button>
-                    <div id="user-menu" class="absolute right-0 mt-3 w-64 bg-white dark:bg-slate-800 rounded-xl shadow-2xl py-2 z-20 hidden border border-slate-200 dark:border-slate-700 dropdown-menu scale-95 opacity-0">
-                        <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
-                            <div class="flex items-center space-x-3">
-                                <img src="<?= $profile_picture_url ?>" alt="Profile" class="w-12 h-12 rounded-full object-cover profile-picture">
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-bold text-gray-800 dark:text-white truncate"><?= htmlspecialchars($_SESSION['user_name']); ?></p>
-                                    <p class="text-xs text-gray-500 dark:text-slate-400 capitalize truncate"><?= str_replace('_', ' ', $_SESSION['user_role']); ?></p>
-                                </div>
+                <div id="user-menu" class="absolute right-0 mt-3 w-64 bg-white rounded-xl shadow-2xl py-2 z-20 hidden border border-slate-200 dropdown-menu scale-95 opacity-0">
+                    <div class="px-4 py-3 border-b border-slate-100">
+                        <div class="flex items-center space-x-3">
+                            <img src="<?= $profile_picture_url ?>" alt="Profile" class="w-12 h-12 rounded-full object-cover profile-picture">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-bold text-gray-800 truncate"><?= htmlspecialchars($_SESSION['user_name']); ?></p>
+                                <p class="text-xs text-gray-500 capitalize truncate"><?= str_replace('_', ' ', $_SESSION['user_role']); ?></p>
                             </div>
                         </div>
-                        <div class="py-2">
-                            <a href="profile.php" class="block px-4 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-orange-50 dark:hover:bg-slate-700 hover:text-[var(--brand-orange)] transition-colors"><i class="fas fa-user-circle mr-2"></i> Profil Saya</a>
-                            <a href="../logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> Keluar</a>
-                        </div>
+                    </div>
+                    <div class="py-2">
+                        <a href="profile.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-[var(--brand-orange)] transition-colors"><i class="fas fa-user-circle mr-2"></i> Profil Saya</a>
+                        <a href="../logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> Keluar</a>
                     </div>
                 </div>
             </div>
@@ -214,37 +186,37 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     
-                    <div class="stat-card flex items-center justify-between dark:bg-slate-800 dark:border-slate-700">
+                    <div class="stat-card flex items-center justify-between">
                         <div>
                             <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Transaksi Hari Ini</p>
-                            <h3 class="text-3xl font-bold text-slate-800 dark:text-white"><?= number_format($transaksi_hari_ini) ?></h3>
+                            <h3 class="text-3xl font-bold text-slate-800"><?= number_format($transaksi_hari_ini) ?></h3>
                             <p class="text-xs text-slate-400 mt-1">Kendaraan keluar</p>
                         </div>
-                        <div class="icon-box bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                        <div class="icon-box bg-blue-50 text-blue-600">
                             <i class="fas fa-receipt"></i>
                         </div>
                     </div>
 
-                    <div class="stat-card flex items-center justify-between dark:bg-slate-800 dark:border-slate-700">
+                    <div class="stat-card flex items-center justify-between">
                         <div>
                             <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Pendapatan Hari Ini</p>
-                            <h3 class="text-3xl font-bold text-slate-800 dark:text-white">Rp <?= number_format($pendapatan_hari_ini, 0, ',', '.') ?></h3>
+                            <h3 class="text-3xl font-bold text-slate-800">Rp <?= number_format($pendapatan_hari_ini, 0, ',', '.') ?></h3>
                             <p class="text-xs text-slate-400 mt-1">Total tunai diterima</p>
                         </div>
-                        <div class="icon-box bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400">
+                        <div class="icon-box bg-green-50 text-green-600">
                             <i class="fas fa-wallet"></i>
                         </div>
                     </div>
 
                 </div>
 
-                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-                    <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center">
                         <div>
-                            <h3 class="text-lg font-bold text-slate-800 dark:text-white">Kendaraan di Dalam</h3>
-                            <p class="text-sm text-slate-500 dark:text-slate-400">10 kendaraan terbaru yang belum checkout</p>
+                            <h3 class="text-lg font-bold text-slate-800">Kendaraan di Dalam</h3>
+                            <p class="text-sm text-slate-500">10 kendaraan terbaru yang belum checkout</p>
                         </div>
-                        <div class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-full text-xs font-bold">
+                        <div class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold">
                             Live Data
                         </div>
                     </div>
@@ -269,7 +241,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                                     ?>
                                     <tr>
                                         <td>
-                                            <div class="font-bold text-slate-700 dark:text-white"><?= htmlspecialchars($row['license_plate'] ?: '-') ?></div>
+                                            <div class="font-bold text-slate-700"><?= htmlspecialchars($row['license_plate'] ?: '-') ?></div>
                                             <div class="text-xs text-slate-400 font-mono mt-0.5"><?= htmlspecialchars($row['parking_token']) ?></div>
                                         </td>
                                         <td>
@@ -283,10 +255,10 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                                                 </span>
                                             <?php endif; ?>
                                         </td>
-                                        <td class="text-slate-600 dark:text-slate-400">
+                                        <td class="text-slate-600">
                                             <?= date('d M Y, H:i', strtotime($row['check_in_time'])) ?>
                                         </td>
-                                        <td class="text-slate-500 dark:text-slate-500 font-medium">
+                                        <td class="text-slate-500 font-medium">
                                             <i class="far fa-clock mr-1 text-xs"></i> <?= $durasi ?>
                                         </td>
                                     </tr>
@@ -315,25 +287,6 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 document.addEventListener('DOMContentLoaded', function() {
     // --- Sidebar & Navbar Logic (Tidak Diubah) ---
     const sidebarToggle = document.getElementById('sidebar-toggle'); if (sidebarToggle) { sidebarToggle.addEventListener('click', () => { document.body.classList.toggle('sidebar-collapsed'); localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); }); } if (localStorage.getItem('sidebarCollapsed') === 'true') { document.body.classList.add('sidebar-collapsed'); } const userMenuButton = document.getElementById('user-menu-button'); const userMenu = document.getElementById('user-menu'); const userMenuIcon = userMenuButton?.querySelector('i.fa-chevron-down'); if (userMenuButton && userMenu) { userMenuButton.addEventListener('click', (e) => { e.stopPropagation(); const isHidden = userMenu.classList.contains('hidden'); if (isHidden) { userMenu.classList.remove('hidden'); setTimeout(() => { userMenu.classList.remove('scale-95', 'opacity-0'); userMenu.classList.add('scale-100', 'opacity-100'); if (userMenuIcon) { userMenuIcon.style.transform = 'rotate(180deg)'; } }, 10); } else { userMenu.classList.add('scale-95', 'opacity-0'); setTimeout(() => { userMenu.classList.add('hidden'); if (userMenuIcon) { userMenuIcon.style.transform = 'rotate(0deg)'; } }, 200); } }); window.addEventListener('click', (e) => { if (userMenuButton && userMenu && !userMenuButton.contains(e.target) && !userMenu.contains(e.target)) { userMenu.classList.add('scale-95', 'opacity-0'); setTimeout(() => { userMenu.classList.add('hidden'); if (userMenuIcon) { userMenuIcon.style.transform = 'rotate(0deg)'; } }, 200); } }); }
-
-    // --- DARK MODE LOGIC ---
-    const themeToggle = document.getElementById('theme-toggle');
-    function toggleTheme() {
-        if (document.documentElement.classList.contains('dark')) {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        } else {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        }
-    }
-    if(themeToggle) themeToggle.addEventListener('click', toggleTheme);
-
-    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
 });
 </script>
 </body>
