@@ -49,8 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $mail->isSMTP(); 
                         $mail->Host = 'smtp.gmail.com'; // Ganti dengan host SMTP Anda
                         $mail->SMTPAuth = true;
-                        $mail->Username = 'rakacembol@gmail.com'; // Ganti dengan email Anda
-                        $mail->Password = 'sixvaazbmlndzrtt'; // Ganti dengan App Password Anda
+                        $mail->Username = ''; // Ganti dengan email Anda
+                        $mail->Password = ''; // Ganti dengan App Password Anda
                         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; 
                         $mail->Port = 465;
                         $mail->setFrom('no-reply@parkirkita.com', 'Admin ParkirKita');
@@ -293,4 +293,5 @@ elseif ($mode === 'reset_password') { $step1_class = 'step-completed'; $step2_cl
         }
     </script>
 </body>
+
 </html>
